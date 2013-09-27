@@ -25,7 +25,7 @@ class Hiera
           return httpres
         end
         unless httpres.kind_of?(Net::HTTPSuccess)
-          Hiera.debug("[hiera-etcd]: #{httpres.code} HTTP response from #{@config[:host]}:#{@config[:port]}#{path}/#{key}")
+          Hiera.debug("[hiera-etcd]: #{httpres.code} HTTP response for http://#{@config[:host]}:#{@config[:port]}#{url}")
           next
         end
         httpres
@@ -67,8 +67,8 @@ class Hiera
         paths.insert(0, order_override) if order_override
 
         paths.each do |path|
-          url = "/v1/keys#{path}"
-          Hiera.debug("[hiera-etcd]: Lookup #{@config[:host]}:#{@config[:port]}a#{url}")
+          url = "/v1/keys#{path}/#{key}"
+          Hiera.debug("[hiera-etcd]: Lookup http://#{@config[:host]}:#{@config[:port]}#{url}")
           httpres = self.perform_request(url)
 
           # On to the next path if we don't have a response
