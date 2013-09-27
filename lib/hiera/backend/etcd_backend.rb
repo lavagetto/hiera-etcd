@@ -65,7 +65,7 @@ class Hiera
         # Extract multiple etcd paths from the configuration file
         paths = @config[:paths].map { |p| Backend.parse_string(p, scope, { 'key' => key }) }
         paths.insert(0, order_override) if order_override
-
+	answer = nil
         paths.each do |path|
           url = "/v1/keys#{path}/#{key}"
           Hiera.debug("[hiera-etcd]: Lookup http://#{@config[:host]}:#{@config[:port]}#{url}")
