@@ -26,14 +26,13 @@ class Hiera
         end
         unless httpres.kind_of?(Net::HTTPSuccess)
           Hiera.debug("[hiera-etcd]: #{httpres.code} HTTP response for http://#{@config[:host]}:#{@config[:port]}#{url}")
-          return nil
         end
         httpres
       end
 
 
 
-      def parse_result(result, type, scope)
+      def parse_result(result, scope, type)
         res = JSON.parse(result)['value']
         answer = nil
         case type
@@ -65,7 +64,7 @@ class Hiera
         # Extract multiple etcd paths from the configuration file
         paths = @config[:paths].map { |p| Backend.parse_string(p, scope, { 'key' => key }) }
         paths.insert(0, order_override) if order_override
-	answer = nil
+        answer = nil
         paths.each do |path|
           url = "/v1/keys#{path}/#{key}"
           Hiera.debug("[hiera-etcd]: Lookup http://#{@config[:host]}:#{@config[:port]}#{url}")
