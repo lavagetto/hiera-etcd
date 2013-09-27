@@ -26,6 +26,7 @@ class Hiera
         end
         unless httpres.kind_of?(Net::HTTPSuccess)
           Hiera.debug("[hiera-etcd]: #{httpres.code} HTTP response for http://#{@config[:host]}:#{@config[:port]}#{url}")
+          return nil
         end
         httpres
       end
@@ -33,8 +34,12 @@ class Hiera
 
 
       def parse_result(result, scope, type)
-        res = JSON.parse(result)['value']
         answer = nil
+        begin
+          res = JSON.parse(result)['value']
+        rescue
+          return nil
+        end
         case type
         when :array
           answer ||= []
@@ -47,8 +52,7 @@ class Hiera
         when :hash
           answer ||= {}
           begin
-            data = Backend.parse_answer(JSON[res], scope)
-            answer << data
+            answer = Backend.parse_answer(JSON[res], scope)
           rescue
             Hiera.warn("[hiera-etcd]: '#{res}' is not in json format, and hash lookup is requested")
           end
@@ -71,7 +75,7 @@ class Hiera
           httpres = self.perform_request(url)
 
           # On to the next path if we don't have a response
-          next unless httpres.body
+          next unless (httpres and httpres.body)
 
           # Parse result from standard etcd JSON response
           answer = self.parse_result(httpres.body, scope, resolution_type)
