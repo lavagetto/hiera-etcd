@@ -26,7 +26,7 @@ class Hiera
         end
         unless httpres.kind_of?(Net::HTTPSuccess)
           Hiera.debug("[hiera-etcd]: #{httpres.code} HTTP response for http://#{@config[:host]}:#{@config[:port]}#{url}")
-          next
+          return nil
         end
         httpres
       end
